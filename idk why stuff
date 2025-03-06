@@ -1,0 +1,150 @@
+# Practical Ethical Hacking
+
+### **Networking Refresher**
+
+- **IP Addresses**
+
+  - `ifconfig` - Displays IP address (Use `ip a` on newer Linux distros)
+  - **NAT (Network Address Translation)** - Assigns private IP addresses
+  - Classes of private IP addresses:
+
+- **MAC Addresses (Layer 2)**
+
+  - `ifconfig` - **ether** shows MAC address
+  - [First three pairs are vendor identifiers.](https://maclookup.app/)
+
+- **TCP, UDP, and the Three-Way Handshake (Layer 4)**
+
+  - **TCP (Transmission Control Protocol)** - Uses three-way handshake
+  - **UDP (User Datagram Protocol)** - Connectionless protocol
+  - **Three-Way Handshake**: SYN > SYN-ACK > ACK
+
+- **Common Ports and Protocols**
+
+  - Corrected duplicate RDP entry and missing details.
+  - **FTP (File Transfer Protocol)**: Port 21 (TCP)
+  - **SSH (Secure Shell)**: Port 22 (TCP)
+  - **Telnet**: Port 23 (TCP)
+  - **SMTP (Simple Mail Transfer Protocol)**: Port 25 (TCP)
+  - **HTTP (Hypertext Transfer Protocol)**: Port 80 (TCP)
+  - **HTTPS (Hypertext Transfer Protocol Secure)**: Port 443 (TCP)
+  - **POP3 (Post Office Protocol v3)**: Port 110 (TCP)
+  - **IMAP (Internet Message Access Protocol)**: Port 143 (TCP)
+  - **NTP (Network Time Protocol)**: Port 123 (UDP)
+  - **SMB (Server Message Block)**: Port 445 (TCP)
+  - **FTPS (FTP over SSL/TLS)**: Port 990 (TCP)
+  - **LDAP (Lightweight Directory Access Protocol)**: Port 389 (TCP and UDP)
+  - **MySQL**: Port 3306 (TCP)
+  - **DNS (Domain Name System)**: Port 53 (TCP and UDP)
+  - **DHCP (Dynamic Host Configuration Protocol)**: Port 67 (UDP) and Port 68 (UDP)
+  - **TFTP (Trivial File Transfer Protocol)**: Port 69 (UDP)
+  - **SNMP (Simple Network Management Protocol)**: Port 161 (UDP)
+
+- **The OSI Model**
+  
+  - Fixed typo in Presentation Layer.
+  1. Physical Layer: Data cables, Cat6
+  2. Data Link Layer: Switching, MAC addresses
+  3. Network Layer: IP addresses, routing
+  4. Transport Layer: TCP/UDP
+  5. Session Layer: Session management
+  6. Presentation Layer: Encryption, compression (e.g., WMV, JPEG, MOV)
+  7. Application Layer: HTTP, SMTP, FTP, DNS
+
+### **The Ethical Hacker Methodology**
+
+- **The Five Stages of Ethical Hacking**
+
+  - **Reconnaissance**: Gathering information about the target system or network.
+  - **Scanning**: Actively probing the target system or network to discover open ports, services, and vulnerabilities.
+  - **Gaining Access**: Attempting to gain unauthorized access to the target system or network.
+  - **Maintaining Access**: Establishing persistent access using backdoors or remote tools.
+  - **Covering Tracks**: Removing evidence of the attack.
+
+### **Information Gathering (Reconnaissance)**
+
+- **Passive Reconnaissance**: Collecting data without direct interaction.
+  - Physical/Social: Satellite images, badge readers, job info, desk photos
+  - Web/Host: `whois`, `nslookup`, `dnsrecon`, `nmap`, `crt.sh`, `wappalyzer`
+  - Data Breaches: [Have I Been Pwned](https://haveibeenpwned.com/), Breach-parse
+
+- **Active Reconnaissance**: Direct interaction with target.
+  - `nmap -sS -p- -A <IP>` (Stealth scan)
+  - `nikto -h <host URL>` (Web scanning)
+  - `gobuster` or `dirb` (Directory brute-forcing)
+  
+### **Scanning & Enumeration**
+
+- **Scanning with Nmap**
+  - `nmap -T4 -p- -A <IP>`
+  - `nmap -sU -T4 -p <IP>` (UDP scan)
+
+- **Enumerating SMB**
+  - `smbclient -L \\\\<IP>\\`
+  - `msfconsole`, `search smb`, `use <index>`, `info`, `set RHOST <IP>`
+
+- **Enumerating SSH**
+  - `ssh <IP>`
+  - `ssh <IP> -oKexAlgorithms=+<key>` (Fix key exchange issues)
+
+### **Exploitation Basics**
+
+- **Reverse Shells vs Bind Shells**
+  - Reverse: Target connects back to the attacker.
+  - Bind: Attacker connects to a listener on the target.
+
+- **Brute Force Attacks**
+  - `hydra -l root -P <password list> ssh://<IP> -t 4`
+
+### **Active Directory Overview**
+
+- **Corrected 'global catelog' to 'global catalog'.**
+
+### **Attacking Active Directory: Initial Attack Vectors**
+
+- **LLMNR Poisoning**
+  - `sudo responder -I <interface> -dwPv`
+  - Crack with `hashcat -m 5600 hash.txt /usr/share/wordlists/rockyou.txt`
+
+- **Mitigation:** Disable LLMNR/NBT-NS, enforce strong passwords.
+
+### **Attacking Active Directory: Post-Compromise Enumeration**
+
+- **Domain Enumeration with ldapdomaindump**
+  - `sudo ldapdomaindump ldaps://<IP> -u '<domain/user>' -p <password>`
+
+- **Domain Enumeration with BloodHound**
+  - `bloodhound-python -d <domain> -u <user> -p <password> -ns <nameserverIP> -c all`
+
+### **Web Application Enumeration**
+
+- **Finding Subdomains with Assetfinder**
+  - `assetfinder --subs-only <domain>`
+
+- **Finding Alive Domains with Httprobe**
+  - `httprobe -s -p https:443`
+
+### **Find & Exploit Common Web Vulnerabilities**
+
+- **SQL Injection**
+  - `sqlmap -r request.txt`
+  - `sqlmap -r request2.txt --level=2 --dump`
+
+- **XSS Payloads**
+  - `<img src=x onerror="prompt(1)">`
+  - `<script>alert(document.cookie)</script>`
+
+### **Post Exploitation**
+
+- **Pivoting**
+  - `sshuttle -r root@<IP> <network>/<CIDR> --ssh-cmd "ssh -i pivot"`
+
+### **Legal Documents and Report Writing**
+
+- **Common Legal Documents**
+  - NDA, Rules of Engagement (ROE), Findings Report
+  - Master Service Agreement (MSA), Statement of Work (SOW)
+
+- **Pentest Report Writing Guide**
+  - [TCM Security Sample Report](https://github.com/hmaverickadams/TCM-Security-Sample-Pentest-Report)
+
