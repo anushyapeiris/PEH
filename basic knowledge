@@ -1,0 +1,154 @@
+**Practical Ethical Hacking Notes**
+
+### **1. Introduction to Ethical Hacking**
+
+- Ethical hacking involves testing systems for security vulnerabilities in a legal and authorized manner.
+- Attackers are categorized as:
+  - **Black Hat Hackers** – Malicious hackers who exploit vulnerabilities for personal gain.
+  - **White Hat Hackers** – Ethical hackers who identify vulnerabilities to improve security.
+  - **Gray Hat Hackers** – Hackers who may break laws but do not have malicious intent.
+- Ethical hackers must follow a code of conduct and obtain permission before testing.
+
+### **2. Setting Up a Hacking Lab**
+
+- Use **VirtualBox** or **VMware** to create an isolated environment.
+- Install **Kali Linux** as the main penetration testing OS.
+- Set up vulnerable machines like **Metasploitable2, DVWA, or Active Directory labs** for practice.
+- Use **PFSense** for network security.
+
+### **3. Networking Basics for Hackers**
+
+- **OSI Model**:
+  - Layer 1: Physical
+  - Layer 2: Data Link
+  - Layer 3: Network
+  - Layer 4: Transport
+  - Layer 5: Session
+  - Layer 6: Presentation
+  - Layer 7: Application
+- **TCP/IP Model** (more practical for hacking):
+  - Application
+  - Transport
+  - Internet
+  - Network Interface
+- **Common Protocols**:
+  - HTTP (80), HTTPS (443), FTP (21), SSH (22), DNS (53), SMB (445), RDP (3389)
+- **Subnetting & CIDR Notation**:
+  - CIDR example: `192.168.1.0/24` (255.255.255.0 subnet mask)
+
+### **4. Linux for Hackers**
+
+- Basic Commands:
+  - `ls`, `cd`, `pwd`, `mkdir`, `rm`, `cp`, `mv`
+- User Management:
+  - `whoami`, `id`, `sudo`, `passwd`, `adduser`
+- Networking:
+  - `ifconfig`, `ip a`, `netstat`, `ss`, `nmap`
+- File Permissions:
+  - `chmod`, `chown`, `ls -l`
+- Process Management:
+  - `ps`, `top`, `kill`, `pkill`
+
+### **5. Windows Basics for Hackers**
+
+- Common Windows Commands:
+  - `ipconfig`, `netstat`, `tasklist`, `systeminfo`, `net user`
+- PowerShell Commands:
+  - `Get-Process`, `Get-Service`, `Get-NetIPConfiguration`
+- Active Directory Basics:
+  - `dsquery`, `dsget`, `net user /domain`
+
+### **6. Information Gathering & OSINT**
+
+- **Passive Reconnaissance**: Collecting information without interacting with the target.
+  - Tools: `whois`, `Google Dorking`, `Shodan`, `theHarvester`
+- **Active Reconnaissance**: Direct interaction with the target.
+  - Tools: `nmap`, `Nikto`, `Gobuster`
+- **Scanning & Enumeration**:
+  - `nmap -sS -p- -A <target>` (Stealth scan)
+  - `enum4linux <target>` (SMB enumeration)
+
+### **7. Vulnerability Scanning**
+
+- **Automated Tools**:
+  - `Nessus`
+  - `OpenVAS`
+- **Manual Testing**:
+  - Identify CVEs using `searchsploit`
+  - Test with Metasploit framework
+
+### **8. Exploitation Basics**
+
+- **Metasploit Framework**:
+  - `msfconsole`
+  - `search exploit`
+  - `use exploit/multi/handler`
+- **Privilege Escalation**:
+  - Linux: `sudo -l`, `find / -perm -4000`
+  - Windows: `whoami /priv`, `winPEAS.exe`
+
+### **9. Web Application Hacking**
+
+- **Common Web Vulnerabilities**:
+  - SQL Injection (SQLi)
+  - Cross-Site Scripting (XSS)
+  - Cross-Site Request Forgery (CSRF)
+  - Server-Side Request Forgery (SSRF)
+- **Tools**:
+  - `Burp Suite`
+  - `SQLmap`
+  - `Dirb`, `Gobuster`
+
+### **10. Password Cracking**
+
+- **Hash Cracking**:
+  - `John the Ripper`
+  - `Hashcat`
+- **Brute Force Attacks**:
+  - `Hydra`
+  - `Medusa`
+
+### **11. Active Directory (AD) Attacks**
+
+- **Enumeration**:
+  - `BloodHound`
+  - `PowerView`
+- **Attacks**:
+  - Kerberoasting
+  - Pass-the-Hash
+  - Pass-the-Ticket
+
+### **12. Post-Exploitation**
+
+- **Persistence Techniques**:
+  - Scheduled tasks
+  - Registry modifications
+- **Lateral Movement**:
+  - `PsExec`
+  - `WMIExec`
+- **Data Exfiltration**:
+  - `Netcat`
+  - `FTP`, `SMB`, `HTTP` transfers
+
+### **13. Reporting and Documentation**
+
+- **Writing a Penetration Test Report**:
+  - Executive Summary
+  - Findings & Exploitation Methods
+  - Recommendations
+- **Tools for Documentation**:
+  - `CherryTree`
+  - `KeepNote`
+  - `Dradis`
+
+### **14. Defensive Security & Countermeasures**
+
+- **Security Hardening**:
+  - Disable unused services
+  - Implement strong password policies
+  - Enable firewalls and IDS/IPS
+- **Monitoring & Logging**:
+  - `Splunk`, `ELK Stack`
+- **User Awareness & Training**:
+  - Phishing simulations
+  - Security best practices
